@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <chunkManager.h>
 #include <player.h>
 #include <contactListener.h>
+#include <customCursor.h>
 
 #define SCALE 48
 
@@ -31,7 +32,7 @@ using namespace sf;
 void loadFiles();
 void handleEvents(RenderWindow *window);
 void handleInput(RenderWindow *window);
-void update();
+void update(RenderWindow *window);
 void simulatePhysics();
 void draw(RenderWindow *window);
 
@@ -39,7 +40,7 @@ void draw(RenderWindow *window);
 int screenSizeX = 1920, screenSizeY = 1080;
 
 // Textures
-Texture blocksTexture, playerTexture;
+Texture blocksTexture, playerTexture, cursorTexture;
 
 // Game objects
 ChunkManager chunkManager;
@@ -47,6 +48,8 @@ ChunkManager chunkManager;
 Player player;
 
 ContactListener contactListener;
+
+CustomCursor customCursor;
 
 View view;
 
@@ -63,6 +66,7 @@ Clock fpsTimer;
 int main() {
     RenderWindow window(VideoMode(screenSizeX, screenSizeY), "Chunk test");
     window.setVerticalSyncEnabled(true);
+    window.setMouseCursorVisible(false);
 
     loadFiles();
 
@@ -75,6 +79,7 @@ int main() {
     chunkSettings.tileSize = Vector2i(16, 16);
     chunkSettings.tileTexSize = Vector2f(16, 16);
     chunkSettings.tilesPerWidthTex = 100;
+    chunkSettings.backgroundColor = Color(62, 42, 29);
     chunkSettings.scale = SCALE;
     chunkSettings.world = &world;
 
@@ -91,13 +96,16 @@ int main() {
     playerSettings.startPosition = Vector2f(1000, -100 - (playerSettings.size.y / 2));
     playerSettings.moveForce = 15.0f;
     playerSettings.jumpImpulse = 5.0f;
-    playerSettings.hitRadius = ((float) chunkSettings.tileSize.x) * 3.5f;
-    playerSettings.standardDamage = 0.11f;
+    playerSettings.hitRadius = ((float) chunkSettings.tileSize.x) * 5.0f;
+    playerSettings.standardDamage = 0.04f;
     playerSettings.texture = &playerTexture;
     playerSettings.scale = SCALE;
     playerSettings.world = &world;
 
     player.initialize(playerSettings);
+
+    // Setup CustomCursor
+    customCursor.initialize(&cursorTexture, chunkSettings.tileSize, &player);
 
     // Setup View
     view.setCenter(0, 1080);
@@ -115,7 +123,7 @@ int main() {
 
         handleEvents(&window);
         handleInput(&window);
-        update();
+        update(&window);
         simulatePhysics();
         draw(&window);
     }
@@ -175,9 +183,12 @@ void handleInput(RenderWindow *window) {
     }
 }
 
-void update() {
+void update(RenderWindow *window) {
     chunkManager.update(&view);
     player.update();
+    customCursor.update(Mouse::getPosition(*window)
+            + Vector2i(view.getCenter().x - (screenSizeX / 2)
+                       , view.getCenter().y - (screenSizeY / 2)));
     view.setCenter(player.getPosition());
 }
 
@@ -192,10 +203,12 @@ void draw(RenderWindow *window) {
     window->clear(Color(20, 50, 200));
     chunkManager.draw(window);
     window->draw(player);
+    window->draw(customCursor);
     window->display();
 }
 
 void loadFiles() {
     blocksTexture.loadFromFile("sprites/blocksTexture.png");
     playerTexture.loadFromFile("sprites/player.png");
+    cursorTexture.loadFromFile("sprites/cursor.png");
 }

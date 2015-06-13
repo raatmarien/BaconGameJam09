@@ -27,6 +27,7 @@ Chunk::Chunk(ChunkSettings *settings, char *tiles) {
     this->world = settings->world;
     this->tilesPerWidthTex = settings->tilesPerWidthTex;
     this->tileTexSize = settings->tileTexSize;
+    this->backgroundColor = settings->backgroundColor;
 
     setPosition(settings->position);
 
@@ -139,10 +140,18 @@ void Chunk::draw(RenderTarget &target, RenderStates states) const {
 }
 
 void Chunk::updateVertexArray() {
-    tileQuads.resize(4 * ammountOfVisibleTiles);
+    tileQuads.resize(4 * ammountOfVisibleTiles + 4);
     tileQuads.setPrimitiveType(Quads);
 
-    int indexInVertexArray = 0;
+    tileQuads[0].position = Vector2f(0, 0);
+    tileQuads[1].position = Vector2f(chunkSize.x * tileSize.x, 0);
+    tileQuads[2].position = Vector2f(chunkSize.x * tileSize.x
+                                     , chunkSize.y * tileSize.y);
+    tileQuads[3].position = Vector2f(0, chunkSize.y * tileSize.y);
+
+    for (int i = 0; i < 4; i++) tileQuads[i].color = backgroundColor;
+    
+    int indexInVertexArray = 4;
     for (int i = 0; i < arraySize; i++) {
         int x = i % chunkSize.x;
         int y = i / chunkSize.x;
@@ -165,7 +174,7 @@ void Chunk::updateVertexArray() {
                                                        , (y + 1) * tileSize.y);
 
             Vector2f texCorner =
-                Vector2f(((*(this->tiles + i) - 1) % tilesPerWidthTex)
+                Vector2f(((*(this->tiles + i) ) % tilesPerWidthTex)
                          * tileTexSize.x
                          , (*(this->tiles + i) / tilesPerWidthTex)
                          * tileTexSize.y);

@@ -30,7 +30,13 @@ void ChunkManager::initialize(WorldSettings settings) {
 
 void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage
                            , Vector2f playerPosition, float hitRadius) {
-    playerPosition -= Vector2f(globalPixelPosition.x, globalPixelPosition.y);
+    Vector2f positionRoundedToTile = Vector2f((int) (globalPixelPosition.x)
+                                              , (int) (globalPixelPosition.y));
+    positionRoundedToTile.x -= ((int) (positionRoundedToTile.x)) % settings.chunkSettings.tileSize.x; 
+    positionRoundedToTile.y -= ((int) (positionRoundedToTile.y)) % settings.chunkSettings.tileSize.y; 
+    positionRoundedToTile += Vector2f(settings.chunkSettings.tileSize.x / 2
+                                      , settings.chunkSettings.tileSize.y / 2);
+    playerPosition -= positionRoundedToTile;
     if (playerPosition.x * playerPosition.x + playerPosition.y * playerPosition.y
         > hitRadius * hitRadius)
         return;

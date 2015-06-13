@@ -26,6 +26,7 @@ struct ChunkSettings {
     sf::Vector2f position;
     sf::Vector2f tileTexSize;
     int tilesPerWidthTex; // Ammount of tiles in the width of the texture
+    sf::Color backgroundColor;
     int scale;
     b2World *world;
 };
@@ -53,6 +54,7 @@ private:
     b2Fixture **fixtures;
     sf::Vector2i chunkSize, tileSize;
     sf::Vector2f tileTexSize;
+    sf::Color backgroundColor;
     int scale;
     int ammountOfVisibleTiles, arraySize;
     int tilesPerWidthTex;

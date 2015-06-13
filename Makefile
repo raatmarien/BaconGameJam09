@@ -2,11 +2,12 @@ VPATH = src
 CC = g++
 CFLAG = -I headers
 LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lBox2D
-OBJ = main.o          \
-      chunk.o         \
-      chunkManager.o  \
-      player.o        \
-      contactListener.o 
+OBJ = main.o            \
+      chunk.o           \
+      chunkManager.o    \
+      player.o          \
+      contactListener.o \
+      customCursor.o
 HEADERS = $(wildcard headers/*.h)
 EXEC = bgj09
 
