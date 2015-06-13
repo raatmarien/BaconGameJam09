@@ -49,7 +49,6 @@ void Player::initialize(PlayerSettings settings) {
         / (2.0f * ((float) (this->settings.scale)));
     float halfSizeY = this->settings.size.y
         / (2.0f * ((float) (this->settings.scale)));
-    std::cout << halfSizeX << " " << halfSizeY << "\n";
     b2PolygonShape polygon;
     /* Player shape:
            1___2
@@ -123,6 +122,10 @@ void Player::removeGroundContact() {
 
 float Player::getHitRadius() {
     return settings.hitRadius;
+}
+
+float Player::getDamage() {
+    return settings.standardDamage;
 }
 
 void Player::draw(RenderTarget &target, RenderStates states) const {

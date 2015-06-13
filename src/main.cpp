@@ -92,6 +92,7 @@ int main() {
     playerSettings.moveForce = 15.0f;
     playerSettings.jumpImpulse = 5.0f;
     playerSettings.hitRadius = ((float) chunkSettings.tileSize.x) * 3.5f;
+    playerSettings.standardDamage = 0.11f;
     playerSettings.texture = &playerTexture;
     playerSettings.scale = SCALE;
     playerSettings.world = &world;
@@ -142,13 +143,13 @@ void handleInput(RenderWindow *window) {
         Vector2i globalMousePosition = Mouse::getPosition(*window)
             + Vector2i(view.getCenter().x - (screenSizeX / 2)
                        , view.getCenter().y - (screenSizeY / 2));
-        chunkManager.hitTile(globalMousePosition + Vector2i(-8, -8), 1
+        chunkManager.hitTile(globalMousePosition + Vector2i(-8, -8), player.getDamage()
                              , player.getPosition(), player.getHitRadius());
-        chunkManager.hitTile(globalMousePosition + Vector2i(-8, 8), 1
+        chunkManager.hitTile(globalMousePosition + Vector2i(-8, 8), player.getDamage()
                              , player.getPosition(), player.getHitRadius());
-        chunkManager.hitTile(globalMousePosition + Vector2i(8, 8), 1
+        chunkManager.hitTile(globalMousePosition + Vector2i(8, 8), player.getDamage()
                              , player.getPosition(), player.getHitRadius());
-        chunkManager.hitTile(globalMousePosition + Vector2i(8, -8), 1
+        chunkManager.hitTile(globalMousePosition + Vector2i(8, -8), player.getDamage()
                              , player.getPosition(), player.getHitRadius());
     }
     if (Mouse::isButtonPressed(Mouse::Right)) {

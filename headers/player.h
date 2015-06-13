@@ -28,6 +28,7 @@ struct PlayerSettings {
     float moveForce;
     float jumpImpulse;
     float hitRadius;
+    float standardDamage;
     sf::Texture *texture;
     int scale;
     b2World *world;
@@ -44,6 +45,7 @@ public:
     void removeGroundContact();
 
     float getHitRadius();
+    float getDamage();
 private:
     PlayerSettings settings;
     sf::Sprite sprite;

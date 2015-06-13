@@ -28,16 +28,60 @@ void ChunkManager::initialize(WorldSettings settings) {
     setupChunks();
 }
 
-void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage) {
+void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage
+                           , Vector2f playerPosition, float hitRadius) {
+    playerPosition -= Vector2f(globalPixelPosition.x, globalPixelPosition.y);
+    if (playerPosition.x * playerPosition.x + playerPosition.y * playerPosition.y
+        > hitRadius * hitRadius)
+        return;
+
     int tileX = globalPixelPosition.x / settings.chunkSettings.tileSize.x;
     int tileY = globalPixelPosition.y / settings.chunkSettings.tileSize.y;
-    int chunkX = tileX / settings.chunkSettings.chunkSize.x;
-    int chunkY = tileY / settings.chunkSettings.chunkSize.y;
-    int chunkI = chunkY * settings.worldSize.x + chunkX;    
-    int inChunkX = tileX % settings.chunkSettings.chunkSize.x;
-    int inChunkY = tileY % settings.chunkSettings.chunkSize.y;
-    std::cout << chunkI << ": " << inChunkX << " " << inChunkY << "\n"; 
-    chunks[chunkI]->removeTile(Vector2i(inChunkX, inChunkY));
+
+    for (int i = 0; i < tileDamages.size(); i++) {
+        if (tileDamages[i]->totalTileX == tileX
+            && tileDamages[i]->totalTileY == tileY) {
+            tileDamages[i]->currentStrength -= damage;
+            if (tileDamages[i]->currentStrength < 0) {
+                delete tileDamages[i];
+                tileDamages.erase(tileDamages.begin() + i);
+                // Destroy the tile
+                int chunkX = tileX / settings.chunkSettings.chunkSize.x;
+                int chunkY = tileY / settings.chunkSettings.chunkSize.y;
+                int chunkI = chunkY * settings.worldSize.x + chunkX;    
+                int inChunkX = tileX % settings.chunkSettings.chunkSize.x;
+                int inChunkY = tileY % settings.chunkSettings.chunkSize.y;
+                chunks[chunkI]->removeTile(Vector2i(inChunkX, inChunkY));
+            }
+            return;
+        }
+    }
+
+    
+    if (tileX >= 0 && tileX < settings.worldSize.x
+        * settings.chunkSettings.chunkSize.x
+        && tileY >= 0 && tileY < settings.worldSize.y
+        * settings.chunkSettings.chunkSize.y) {
+        int chunkX = tileX / settings.chunkSettings.chunkSize.x;
+        int chunkY = tileY / settings.chunkSettings.chunkSize.y;
+        int chunkI = chunkY * settings.worldSize.x + chunkX;    
+        int inChunkX = tileX % settings.chunkSettings.chunkSize.x;
+        int inChunkY = tileY % settings.chunkSettings.chunkSize.y;
+        float tileStrength =  getTileStrength(
+            chunks[chunkI]->getTile(Vector2i(inChunkX, inChunkY)));
+        if (tileStrength < damage) {
+            chunks[chunkI]->removeTile(Vector2i(inChunkX, inChunkY));
+            return;
+        }
+
+        TileDamage *tileDamage = new TileDamage;
+        tileDamage->totalTileX = tileX;
+        tileDamage->totalTileY = tileY;
+        tileDamage->maxStrength = tileStrength;
+        tileDamage->currentStrength = tileDamage->maxStrength - damage;
+
+        tileDamages.push_back(tileDamage);
+    }
 }
 
 void ChunkManager::update(View *currentView) {
@@ -52,6 +96,15 @@ void ChunkManager::update(View *currentView) {
             chunks[i]->moveInFocus();
         } else {
             chunks[i]->moveOutFocus();
+        }
+    }
+
+    // Update tileDamages
+    for (int i = 0; i < tileDamages.size(); i++) {
+        tileDamages[i]->currentStrength *= 1.02f;
+        if (tileDamages[i]->currentStrength >= tileDamages[i]->maxStrength) {
+            delete tileDamages[i];
+            tileDamages.erase(tileDamages.begin() + i);
         }
     }
 }
@@ -130,4 +183,14 @@ void ChunkManager::setupChunks() {
         Chunk *chunk = new Chunk(&(settings.chunkSettings), tiles[i]);
         chunks[i] = chunk;
     }
+}
+
+float ChunkManager::getTileStrength(char tile) {
+    switch (tile) {
+    case 0:
+        return 0;
+    case 1:
+        return 1.0f;
+    }
+    return 10.0f;
 }
