@@ -27,6 +27,7 @@ struct PlayerSettings {
     sf::Vector2f startPosition;
     float moveForce;
     float jumpImpulse;
+    float hitRadius;
     sf::Texture *texture;
     int scale;
     b2World *world;
@@ -41,6 +42,8 @@ public:
 
     void addGroundContact();
     void removeGroundContact();
+
+    float getHitRadius();
 private:
     PlayerSettings settings;
     sf::Sprite sprite;

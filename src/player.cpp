@@ -22,9 +22,14 @@ using namespace sf;
 
 void Player::initialize(PlayerSettings settings) {
     this->settings = settings;
+    groundContactsAmmount = 0;
+
+    userData.type = COLLIDABLE_PLAYER;
+    userData.owner = this;
 
     sprite.setTexture(*(this->settings.texture));
-    sprite.setOrigin(this->settings.size / 2.0f);
+    sprite.setOrigin(this->settings.size.x / 2.0f
+                     , this->settings.size.y / 2.0f);
 
     setPosition(this->settings.startPosition);
 
@@ -35,43 +40,55 @@ void Player::initialize(PlayerSettings settings) {
                          / this->settings.scale
                          , this->settings.startPosition.y
                          / this->settings.scale);
-    bodyDef.linearDamping = 0.5f;
+    bodyDef.linearDamping = 4.0f;
     bodyDef.angularDamping = 1.0f;
     bodyDef.fixedRotation = true;
     body = this->settings.world->CreateBody(&bodyDef);
 
-    float halfSizeY = this->settings.size.x
+    float halfSizeX = this->settings.size.x
         / (2.0f * ((float) (this->settings.scale)));
-    float halfSizeX = this->settings.size.y
+    float halfSizeY = this->settings.size.y
         / (2.0f * ((float) (this->settings.scale)));
     std::cout << halfSizeX << " " << halfSizeY << "\n";
     b2PolygonShape polygon;
     /* Player shape:
-           5___4
-         6 /   \ 3
+           1___2
+         0 /   \ 3
+          |  .c |    c = center
           |     |
-          |     |
-         7 \___/ 2
-           0   1           
+         7 \___/ 4
+           6   5           
     */
     b2Vec2 vertices[8];
-    vertices[0].Set(-0.5f * halfSizeX, 1.0f * halfSizeY);
-    vertices[1].Set(0.5f * halfSizeX, 1.0f * halfSizeY);
-    vertices[2].Set(1.0f * halfSizeX, 0.6f * halfSizeY);
+    vertices[0].Set(-1.0f * halfSizeX, -0.8f * halfSizeY);
+    vertices[1].Set(-0.8f * halfSizeX, -1.0f * halfSizeY);
+    vertices[2].Set(0.8f * halfSizeX, -1.0f * halfSizeY);
     vertices[3].Set(1.0f * halfSizeX, -0.8f * halfSizeY);
-    vertices[4].Set(0.8f * halfSizeX, -1.0f * halfSizeY);
-    vertices[5].Set(-0.8f * halfSizeX, -1.0f * halfSizeY);
-    vertices[6].Set(-1.0f * halfSizeX, -0.8f * halfSizeY);
-    vertices[7].Set(-1.0f * halfSizeX, 0.6f * halfSizeY);
+    vertices[4].Set(1.0f * halfSizeX, 0.8f * halfSizeY);
+    vertices[5].Set(0.5f * halfSizeX, 1.0f * halfSizeY);
+    vertices[6].Set(-0.5f * halfSizeX, 1.0f * halfSizeY);
+    vertices[7].Set(-1.0f * halfSizeX, 0.8f * halfSizeY);
+
+    b2Vec2 offset = b2Vec2(-8.0f / ((float) (this->settings.scale))
+                           , -8.0f / ((float) (this->settings.scale)));
+    for (int i = 0; i < 8; i++) vertices[i] += offset;
     
     polygon.Set(vertices, 8);
     
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &polygon;
     fixtureDef.density = 1.0f;
-    fixtureDef.friction = 1.0f;
+    fixtureDef.friction = 0.1f;
 
     body->CreateFixture(&fixtureDef);
+
+    b2PolygonShape footSensorShape;
+    footSensorShape.SetAsBox(0.5f * halfSizeX, 0.2f * halfSizeY
+                             , b2Vec2(0, 0.9f * halfSizeY) + offset, 0);
+    b2FixtureDef footFixtureDef;
+    footFixtureDef.shape = &footSensorShape;
+    footFixtureDef.isSensor = true;
+    body->CreateFixture(&footFixtureDef)->SetUserData(&userData);
 }
 
 void Player::update() {
@@ -82,13 +99,30 @@ void Player::update() {
 
 void Player::move(bool right) {
     int direction = right ? 1 : -1;
-    body->ApplyForce(b2Vec2(direction * settings.moveForce, 0)
+    float groundMultiplier = groundContactsAmmount > 0 ?
+        1 : 0.95f;
+    body->ApplyForce(b2Vec2(direction * settings.moveForce * groundMultiplier
+                            , 0)
                      , body->GetWorldCenter(), true);
 }
 
 void Player::jump() {
-    body->ApplyLinearImpulse(b2Vec2(0, -settings.jumpImpulse)
-                             , body->GetWorldCenter(), true);
+    if (groundContactsAmmount > 0) {
+        body->ApplyLinearImpulse(b2Vec2(0, -settings.jumpImpulse)
+                                 , body->GetWorldCenter(), true);
+    }
+}
+
+void Player::addGroundContact() {
+    groundContactsAmmount++;
+}
+
+void Player::removeGroundContact() {
+    groundContactsAmmount--;
+}
+
+float Player::getHitRadius() {
+    return settings.hitRadius;
 }
 
 void Player::draw(RenderTarget &target, RenderStates states) const {
