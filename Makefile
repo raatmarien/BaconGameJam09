@@ -5,7 +5,8 @@ LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lBox2D
 OBJ = main.o          \
       chunk.o         \
       chunkManager.o  \
-      player.o
+      player.o        \
+      contactListener.o 
 HEADERS = $(wildcard headers/*.h)
 EXEC = bgj09
 

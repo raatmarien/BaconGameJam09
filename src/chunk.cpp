@@ -64,7 +64,7 @@ Chunk::Chunk(ChunkSettings *settings, char *tiles) {
 
 void Chunk::removeTile(Vector2i positionInChunk) {
     int i = positionInChunk.x + positionInChunk.y * chunkSize.x;
-    if (*(tiles + i) && i > 0 && i < arraySize) {
+    if (*(tiles + i) && i >= 0 && i < arraySize) {
         *(tiles + i) = 0;
         
         chunkBody->DestroyFixture(*(fixtures + i));
@@ -78,7 +78,7 @@ void Chunk::removeTile(Vector2i positionInChunk) {
 void Chunk::addTile(Vector2i positionInChunk, char tile) {
     if (tile) {
         int i = positionInChunk.x + positionInChunk.y * chunkSize.x;
-        if (!(*(tiles + i)) && i > 0 && i < arraySize) {
+        if (!(*(tiles + i)) && i >= 0 && i < arraySize) {
             ammountOfVisibleTiles++;
 
             b2Vec2 center = b2Vec2(standardTileSize.x * positionInChunk.x

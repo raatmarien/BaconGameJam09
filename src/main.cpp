@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <chunk.h>
 #include <chunkManager.h>
 #include <player.h>
+#include <contactListener.h>
 
 #define SCALE 48
 
@@ -29,7 +30,7 @@ using namespace sf;
 
 void loadFiles();
 void handleEvents(RenderWindow *window);
-void handleInput();
+void handleInput(RenderWindow *window);
 void update();
 void simulatePhysics();
 void draw(RenderWindow *window);
@@ -45,10 +46,12 @@ ChunkManager chunkManager;
 
 Player player;
 
+ContactListener contactListener;
+
 View view;
 
 // Box2D settings
-b2Vec2 gravity(0.0f, 10.0f);
+b2Vec2 gravity(0.0f, 20.0f);
 b2World world(gravity);
 
 float box2DTimeStep = 1.0f / 60.0f;
@@ -63,11 +66,13 @@ int main() {
 
     loadFiles();
 
+    // Setup world
+    world.SetContactListener(&contactListener);
+
     // Setup ChunkManager
     ChunkSettings chunkSettings;
     chunkSettings.chunkSize = Vector2i(64, 64);
     chunkSettings.tileSize = Vector2i(16, 16);
-    chunkSettings.position = Vector2f(20, 20);
     chunkSettings.tileTexSize = Vector2f(16, 16);
     chunkSettings.tilesPerWidthTex = 100;
     chunkSettings.scale = SCALE;
@@ -84,8 +89,8 @@ int main() {
     PlayerSettings playerSettings;
     playerSettings.size = Vector2f(28, 48);
     playerSettings.startPosition = Vector2f(1000, -100 - (playerSettings.size.y / 2));
-    playerSettings.moveForce = 10.0f;
-    playerSettings.jumpImpulse = 0.5f;
+    playerSettings.moveForce = 15.0f;
+    playerSettings.jumpImpulse = 5.0f;
     playerSettings.texture = &playerTexture;
     playerSettings.scale = SCALE;
     playerSettings.world = &world;
@@ -107,7 +112,7 @@ int main() {
         framesForFps++;
 
         handleEvents(&window);
-        handleInput();
+        handleInput(&window);
         update();
         simulatePhysics();
         draw(&window);
@@ -130,10 +135,16 @@ void handleEvents(RenderWindow *window) {
     }
 }
 
-void handleInput() {
+void handleInput(RenderWindow *window) {
     // Mouse input
     if (Mouse::isButtonPressed(Mouse::Left)) {
-
+        Vector2i globalMousePosition = Mouse::getPosition(*window)
+            + Vector2i(view.getCenter().x - (screenSizeX / 2)
+                       , view.getCenter().y - (screenSizeY / 2));
+        chunkManager.hitTile(globalMousePosition + Vector2i(-8, -8), 1);
+        chunkManager.hitTile(globalMousePosition + Vector2i(-8, 8), 1);
+        chunkManager.hitTile(globalMousePosition + Vector2i(8, 8), 1);
+        chunkManager.hitTile(globalMousePosition + Vector2i(8, -8), 1);
     }
     if (Mouse::isButtonPressed(Mouse::Right)) {
 

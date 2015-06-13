@@ -29,7 +29,15 @@ void ChunkManager::initialize(WorldSettings settings) {
 }
 
 void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage) {
-    // TODO
+    int tileX = globalPixelPosition.x / settings.chunkSettings.tileSize.x;
+    int tileY = globalPixelPosition.y / settings.chunkSettings.tileSize.y;
+    int chunkX = tileX / settings.chunkSettings.chunkSize.x;
+    int chunkY = tileY / settings.chunkSettings.chunkSize.y;
+    int chunkI = chunkY * settings.worldSize.x + chunkX;    
+    int inChunkX = tileX % settings.chunkSettings.chunkSize.x;
+    int inChunkY = tileY % settings.chunkSettings.chunkSize.y;
+    std::cout << chunkI << ": " << inChunkX << " " << inChunkY << "\n"; 
+    chunks[chunkI]->removeTile(Vector2i(inChunkX, inChunkY));
 }
 
 void ChunkManager::update(View *currentView) {
