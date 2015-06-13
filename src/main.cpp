@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <player.h>
 #include <contactListener.h>
 #include <customCursor.h>
+#include <stdlib.h>
 
 #define SCALE 48
 
@@ -70,6 +71,8 @@ int main() {
 
     loadFiles();
 
+    srand(time(NULL));
+
     // Setup world
     world.SetContactListener(&contactListener);
 
@@ -97,7 +100,7 @@ int main() {
     playerSettings.moveForce = 15.0f;
     playerSettings.jumpImpulse = 5.0f;
     playerSettings.hitRadius = ((float) chunkSettings.tileSize.x) * 5.0f;
-    playerSettings.standardDamage = 0.04f;
+    playerSettings.standardDamage = 0.1f;
     playerSettings.texture = &playerTexture;
     playerSettings.scale = SCALE;
     playerSettings.world = &world;

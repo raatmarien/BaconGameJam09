@@ -112,7 +112,7 @@ void Chunk::moveInFocus() {
             int x = i % chunkSize.x;
             int y = i / chunkSize.x;
 
-            if (*(this->tiles + i)) { // tile is visible and solid
+            if (*(this->tiles + i) && *(this->tiles + i) != 2) { // tile is visible and solid
                 b2Vec2 center = b2Vec2(standardTileSize.x * x
                                        , standardTileSize.y * y);
                 standardTileShape.SetAsBox(standardTileSize.x / 2.0f

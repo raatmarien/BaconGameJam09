@@ -48,12 +48,15 @@ private:
     WorldSettings settings;
 
     int ammountOfChunks, tilesInChunk;
+    int tilesInHeight, tilesInWidth;
 
     std::vector<TileDamage*> tileDamages;
 
     void setupWorld();
     void setLocalTile(int x, int y, char tile);
     void setupChunks();
+
+    void addCoal();
 
     float getTileStrength(char tile);
 };

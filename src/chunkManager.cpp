@@ -138,29 +138,26 @@ void ChunkManager::setupWorld() {
         * settings.chunkSettings.chunkSize.y;
     for (int i = 0; i < ammountOfChunks; i++) {
         tiles[i] = new char[tilesInChunk];
-        // Fill all the tiles
-        for (int j = 0; j < tilesInChunk; j++) {
-            tiles[i][j] = 1;
+    }
+
+    Vector2i tilesWorldSize =
+        Vector2i(settings.worldSize.x
+                 * settings.chunkSettings.chunkSize.x
+                 , settings.worldSize.y
+                 * settings.chunkSettings.chunkSize.y);
+    for (int y = 0; y < tilesWorldSize.y; y++) {
+        for (int x = 0; x < tilesWorldSize.x; x++) {
+            if (y) 
+                setLocalTile(x, y, 1);
+            else
+                setLocalTile(x, y, 2);
         }
     }
 
-    // Fill the tiles
-    // Vector2i tilesWorldSize =
-    //     Vector2i(settings.worldSize.x
-    //              * settings.chunkSettings.chunkSize.x
-    //              , settings.worldSize.y
-    //              * settings.chunkSettings.chunkSize.y);
-    // std::cout << ammountOfChunks << " " << tilesInChunk << " " << tilesWorldSize.x
-    //           <<  " " << tilesWorldSize.y << "\n";
-    // for (int y = 0; y < tilesWorldSize.y; y++) {
-    //     for (int x = 0; x < tilesWorldSize.x; x++) {
-    //         if (y < settings.skySize) {
-    //             setLocalTile(x, y, 0);
-    //         } else {
-    //             setLocalTile(x, y, 1);
-    //         }
-    //     }
-    // }
+    tilesInHeight = settings.worldSize.y * settings.chunkSettings.chunkSize.y;
+    tilesInWidth = settings.worldSize.x * settings.chunkSettings.chunkSize.x;
+
+    addCoal();
 }
 
 void ChunkManager::setLocalTile(int x, int y, char tile) {
@@ -173,6 +170,7 @@ void ChunkManager::setLocalTile(int x, int y, char tile) {
     int inChunkI = inChunkY * settings
         .chunkSettings.chunkSize.x + inChunkX;
 
+    // std::cout << chunkI << " " << inChunkI << "\n";
     tiles[chunkI][inChunkI] = tile;
 }
 
@@ -191,12 +189,30 @@ void ChunkManager::setupChunks() {
     }
 }
 
+void ChunkManager::addCoal() {
+    for (int y = 1; y < tilesInHeight && y < 50; y++) {
+        for (int i = 0; i < 10; i++) {
+            if ((rand() % 10000) > 6000 + y * 80) {
+                int ammountTiles = rand() % 15;
+                Vector2i basePos = Vector2i(rand() % tilesInWidth, y);
+                for (int j = 0; j < ammountTiles; j++) {
+                    setLocalTile(basePos.x + (rand() % 4), basePos.y + (rand() % 4), 3);
+                }
+            }
+        }
+    }
+}
+
 float ChunkManager::getTileStrength(char tile) {
     switch (tile) {
     case 0:
         return 0;
     case 1:
         return 1.0f;
+    case 2:
+        return 10000000000.0f;
+    case 3:
+        return 2.0f;
     }
     return 10.0f;
 }
