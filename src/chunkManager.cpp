@@ -157,7 +157,31 @@ void ChunkManager::setupWorld() {
     tilesInHeight = settings.worldSize.y * settings.chunkSettings.chunkSize.y;
     tilesInWidth = settings.worldSize.x * settings.chunkSettings.chunkSize.x;
 
-    addCoal();
+    OrePlaceSettings coalSettings;
+    coalSettings.minY = 1;
+    coalSettings.maxY = 100;
+    coalSettings.chanceN = 10000;
+    coalSettings.baseChanceT = 7500;
+    coalSettings.yChanceT = 25;
+    coalSettings.triesPerY = 19;
+    coalSettings.tilesTries = 15;
+    coalSettings.tilesSpread = 4;
+    coalSettings.tile = 3;
+
+    addOre(coalSettings);
+
+    OrePlaceSettings copperSettings;
+    copperSettings.minY = 10;
+    copperSettings.maxY = 160;
+    copperSettings.chanceN = 10000;
+    copperSettings.baseChanceT = 10000;
+    copperSettings.yChanceT = -20;
+    copperSettings.triesPerY = 19;
+    copperSettings.tilesTries = 15;
+    copperSettings.tilesSpread = 4;
+    copperSettings.tile = 4;
+
+    addOre(copperSettings);
 }
 
 void ChunkManager::setLocalTile(int x, int y, char tile) {
@@ -189,14 +213,16 @@ void ChunkManager::setupChunks() {
     }
 }
 
-void ChunkManager::addCoal() {
-    for (int y = 1; y < tilesInHeight && y < 50; y++) {
-        for (int i = 0; i < 10; i++) {
-            if ((rand() % 10000) > 6000 + y * 80) {
-                int ammountTiles = rand() % 15;
+void ChunkManager::addOre(OrePlaceSettings settings) {
+    for (int y = settings.minY; y < tilesInHeight && y < settings.maxY; y++) {
+        for (int i = 0; i < settings.triesPerY; i++) {
+            if ((rand() % settings.chanceN) > settings.baseChanceT
+                + (y - settings.minY) * settings.yChanceT) {
+                int ammountTiles = rand() % settings.tilesTries;
                 Vector2i basePos = Vector2i(rand() % tilesInWidth, y);
                 for (int j = 0; j < ammountTiles; j++) {
-                    setLocalTile(basePos.x + (rand() % 4), basePos.y + (rand() % 4), 3);
+                    setLocalTile(basePos.x + (rand() % settings.tilesSpread)
+                                 , basePos.y + (rand() % settings.tilesSpread), settings.tile);
                 }
             }
         }

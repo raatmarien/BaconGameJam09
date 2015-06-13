@@ -35,6 +35,18 @@ struct TileDamage {
     float currentStrength;
 };
 
+struct OrePlaceSettings {
+    int minY;
+    int maxY;
+    int chanceN;
+    int baseChanceT;
+    int yChanceT;
+    int triesPerY;
+    int tilesTries;
+    int tilesSpread;
+    char tile;
+}; 
+
 class ChunkManager {
 public:
     void initialize(WorldSettings settings);
@@ -56,7 +68,7 @@ private:
     void setLocalTile(int x, int y, char tile);
     void setupChunks();
 
-    void addCoal();
+    void addOre(OrePlaceSettings settings);
 
     float getTileStrength(char tile);
 };
