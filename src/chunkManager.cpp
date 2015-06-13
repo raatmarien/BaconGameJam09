@@ -85,6 +85,11 @@ void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage
         tileDamage->totalTileY = tileY;
         tileDamage->maxStrength = tileStrength;
         tileDamage->currentStrength = tileDamage->maxStrength - damage;
+        tileDamage->shape = new RectangleShape(Vector2f(settings.chunkSettings.tileSize.x
+                                                        , settings.chunkSettings.tileSize.y));
+        tileDamage->shape->setPosition(tileX * settings.chunkSettings.tileSize.x
+                                       , tileY * settings.chunkSettings.tileSize.y);
+        tileDamage->shape->setFillColor(settings.chunkSettings.backgroundColor);
 
         tileDamages.push_back(tileDamage);
     }
@@ -108,6 +113,10 @@ void ChunkManager::update(View *currentView) {
     // Update tileDamages
     for (int i = 0; i < tileDamages.size(); i++) {
         tileDamages[i]->currentStrength *= 1.02f;
+        Color damageColor = tileDamages[i]->shape->getFillColor();
+        damageColor.a = pow((1.0f - (tileDamages[i]->currentStrength
+                                     / tileDamages[i]->maxStrength)), 3.0f) * 255.0f;
+        tileDamages[i]->shape->setFillColor(damageColor);
         if (tileDamages[i]->currentStrength >= tileDamages[i]->maxStrength) {
             delete tileDamages[i];
             tileDamages.erase(tileDamages.begin() + i);
@@ -127,6 +136,9 @@ void ChunkManager::draw(RenderTarget *target) {
         if (chunks[i]->chunkRect.intersects(viewRect)) {
             target->draw(*(chunks[i]), settings.chunkTexture);
         }
+    }
+    for (int i = 0; i < tileDamages.size(); i++) {
+        target->draw(*(tileDamages[i]->shape));
     }
 }
 
@@ -163,7 +175,7 @@ void ChunkManager::setupWorld() {
     coalSettings.chanceN = 10000;
     coalSettings.baseChanceT = 7500;
     coalSettings.yChanceT = 25;
-    coalSettings.triesPerY = 19;
+    coalSettings.triesPerY = 6;
     coalSettings.tilesTries = 15;
     coalSettings.tilesSpread = 4;
     coalSettings.tile = 3;
@@ -174,14 +186,105 @@ void ChunkManager::setupWorld() {
     copperSettings.minY = 10;
     copperSettings.maxY = 160;
     copperSettings.chanceN = 10000;
-    copperSettings.baseChanceT = 10000;
+    copperSettings.baseChanceT = 9000;
     copperSettings.yChanceT = -20;
-    copperSettings.triesPerY = 19;
+    copperSettings.triesPerY = 5;
     copperSettings.tilesTries = 15;
     copperSettings.tilesSpread = 4;
     copperSettings.tile = 4;
 
     addOre(copperSettings);
+
+    OrePlaceSettings silverSettings;
+    silverSettings.minY = 30;
+    silverSettings.maxY = 210;
+    silverSettings.chanceN = 10000;
+    silverSettings.baseChanceT = 10000;
+    silverSettings.yChanceT = -12;
+    silverSettings.triesPerY = 5;
+    silverSettings.tilesTries = 15;
+    silverSettings.tilesSpread = 4;
+    silverSettings.tile = 5;
+
+    addOre(silverSettings);
+
+    OrePlaceSettings goldSettings;
+    goldSettings.minY = 60;
+    goldSettings.maxY = 300;
+    goldSettings.chanceN = 10000;
+    goldSettings.baseChanceT = 10000;
+    goldSettings.yChanceT = -14;
+    goldSettings.triesPerY = 3;
+    goldSettings.tilesTries = 10;
+    goldSettings.tilesSpread = 4;
+    goldSettings.tile = 6;
+
+    addOre(goldSettings);
+
+    OrePlaceSettings platinumSettings;
+    platinumSettings.minY = 100;
+    platinumSettings.maxY = 340;
+    platinumSettings.chanceN = 10000;
+    platinumSettings.baseChanceT = 10000;
+    platinumSettings.yChanceT = -12;
+    platinumSettings.triesPerY = 4;
+    platinumSettings.tilesTries = 15;
+    platinumSettings.tilesSpread = 4;
+    platinumSettings.tile = 7;
+
+    addOre(platinumSettings);
+
+    OrePlaceSettings uraniumSettings;
+    uraniumSettings.minY = 150;
+    uraniumSettings.maxY = 380;
+    uraniumSettings.chanceN = 10000;
+    uraniumSettings.baseChanceT = 10000;
+    uraniumSettings.yChanceT = -10;
+    uraniumSettings.triesPerY = 3;
+    uraniumSettings.tilesTries = 15;
+    uraniumSettings.tilesSpread = 4;
+    uraniumSettings.tile = 8;
+
+    addOre(uraniumSettings);
+
+    OrePlaceSettings flintSettings;
+    flintSettings.minY = 200;
+    flintSettings.maxY = 380;
+    flintSettings.chanceN = 10000;
+    flintSettings.baseChanceT = 10000;
+    flintSettings.yChanceT = -14;
+    flintSettings.triesPerY = 3;
+    flintSettings.tilesTries = 8;
+    flintSettings.tilesSpread = 3;
+    flintSettings.tile = 9;
+
+    addOre(flintSettings);
+
+    OrePlaceSettings demoniteSettings;
+    demoniteSettings.minY = 250;
+    demoniteSettings.maxY = 380;
+    demoniteSettings.chanceN = 10000;
+    demoniteSettings.baseChanceT = 10000;
+    demoniteSettings.yChanceT = -16;
+    demoniteSettings.triesPerY = 3;
+    demoniteSettings.tilesTries = 10;
+    demoniteSettings.tilesSpread = 5;
+    demoniteSettings.tile = 10;
+
+    addOre(demoniteSettings);
+
+    OrePlaceSettings cobaltSettings;
+    cobaltSettings.minY = 300;
+    cobaltSettings.maxY = 380;
+    cobaltSettings.chanceN = 10000;
+    cobaltSettings.baseChanceT = 10000;
+    cobaltSettings.yChanceT = -18;
+    cobaltSettings.triesPerY = 3;
+    cobaltSettings.tilesTries = 11;
+    cobaltSettings.tilesSpread = 4;
+    cobaltSettings.tile = 11;
+
+    addOre(cobaltSettings);
 }
 
 void ChunkManager::setLocalTile(int x, int y, char tile) {
@@ -194,8 +297,9 @@ void ChunkManager::setLocalTile(int x, int y, char tile) {
     int inChunkI = inChunkY * settings
         .chunkSettings.chunkSize.x + inChunkX;
 
-    // std::cout << chunkI << " " << inChunkI << "\n";
-    tiles[chunkI][inChunkI] = tile;
+    if (chunkI >= 0 && chunkI < ammountOfChunks
+        && inChunkI >= 0 && inChunkI < tilesInChunk)
+        tiles[chunkI][inChunkI] = tile;
 }
 
 void ChunkManager::setupChunks() {
@@ -239,6 +343,22 @@ float ChunkManager::getTileStrength(char tile) {
         return 10000000000.0f;
     case 3:
         return 2.0f;
+    case 4:
+        return 3.0f;
+    case 5:
+        return 4.5f;
+    case 6:
+        return 6.0f;
+    case 7:
+        return 7.5f;
+    case 8:
+        return 9.0f;
+    case 9:
+        return 11.0f;
+    case 10:
+        return 13.5f;
+    case 11:
+        return 16.0f;
     }
     return 10.0f;
 }

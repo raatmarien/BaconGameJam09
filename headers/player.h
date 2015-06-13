@@ -27,9 +27,11 @@ struct PlayerSettings {
     sf::Vector2f startPosition;
     float moveForce;
     float jumpImpulse;
+    float downForce;
     float hitRadius;
     float standardDamage;
     sf::Texture *texture;
+    sf::RectangleShape *shape;
     int scale;
     b2World *world;
 };
@@ -40,6 +42,7 @@ public:
     void update();
     void move(bool right);
     void jump();
+    void down();
 
     void addGroundContact();
     void removeGroundContact();

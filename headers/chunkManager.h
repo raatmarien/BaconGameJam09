@@ -33,6 +33,7 @@ struct TileDamage {
     int totalTileY;
     float maxStrength;
     float currentStrength;
+    sf::RectangleShape *shape;
 };
 
 struct OrePlaceSettings {

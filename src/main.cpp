@@ -81,13 +81,13 @@ int main() {
     chunkSettings.chunkSize = Vector2i(64, 64);
     chunkSettings.tileSize = Vector2i(16, 16);
     chunkSettings.tileTexSize = Vector2f(16, 16);
-    chunkSettings.tilesPerWidthTex = 100;
+    chunkSettings.tilesPerWidthTex = 4;
     chunkSettings.backgroundColor = Color(62, 42, 29);
     chunkSettings.scale = SCALE;
     chunkSettings.world = &world;
 
     WorldSettings worldSettings;
-    worldSettings.worldSize = Vector2i(20, 40);
+    worldSettings.worldSize = Vector2i(10, 6);
     worldSettings.chunkTexture = &blocksTexture;
     worldSettings.chunkSettings = chunkSettings;
 
@@ -96,11 +96,14 @@ int main() {
     // Setup Player
     PlayerSettings playerSettings;
     playerSettings.size = Vector2f(28, 48);
-    playerSettings.startPosition = Vector2f(1000, -100 - (playerSettings.size.y / 2));
+    playerSettings.startPosition = Vector2f((chunkSettings.chunkSize.x * chunkSettings.tileSize.x
+                                             * worldSettings.worldSize.x) / 2
+                                            , -100 - (playerSettings.size.y / 2));
     playerSettings.moveForce = 15.0f;
     playerSettings.jumpImpulse = 5.0f;
+    playerSettings.downForce = 20.0f;
     playerSettings.hitRadius = ((float) chunkSettings.tileSize.x) * 5.0f;
-    playerSettings.standardDamage = 0.1f;
+    playerSettings.standardDamage = 0.05f;
     playerSettings.texture = &playerTexture;
     playerSettings.scale = SCALE;
     playerSettings.world = &world;
@@ -175,6 +178,7 @@ void handleInput(RenderWindow *window) {
     }
     if (Keyboard::isKeyPressed(Keyboard::S)
         || Keyboard::isKeyPressed(Keyboard::Down)) {
+        player.down();
     }
     if (Keyboard::isKeyPressed(Keyboard::A)
         || Keyboard::isKeyPressed(Keyboard::Left)) {
