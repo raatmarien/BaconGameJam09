@@ -71,5 +71,7 @@ private:
 
     void addOre(OrePlaceSettings settings);
 
+    void addDiamond();
+
     float getTileStrength(char tile);
 };

@@ -285,6 +285,8 @@ void ChunkManager::setupWorld() {
     cobaltSettings.tile = 11;
 
     addOre(cobaltSettings);
+
+    addDiamond();
 }
 
 void ChunkManager::setLocalTile(int x, int y, char tile) {
@@ -331,6 +333,18 @@ void ChunkManager::addOre(OrePlaceSettings settings) {
             }
         }
     }
+}
+
+void ChunkManager::addDiamond() {
+    Vector2i caveSize = Vector2i(21, 7);
+    int posX = rand() % (tilesInWidth - caveSize.x * 3) + caveSize.x;
+    int posY = tilesInHeight - caveSize.y * 2;
+    for (int x = posX; x < posX + caveSize.x; x++) {
+        for (int y = posY; y < posY + caveSize.y; y++) {
+            setLocalTile(x, y, 0);
+        }
+    }
+    setLocalTile(posX + (caveSize.x / 2), posY + (caveSize.y / 2), 12);
 }
 
 float ChunkManager::getTileStrength(char tile) {

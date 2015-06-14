@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using namespace sf;
 
 void loadFiles();
+void setWorldBoundaries(int width, int depth);
+
 void handleEvents(RenderWindow *window);
 void handleInput(RenderWindow *window);
 void update(RenderWindow *window);
@@ -39,6 +41,7 @@ void draw(RenderWindow *window);
 
 // Generic global variables
 int screenSizeX = 1920, screenSizeY = 1080;
+int worldSizeX, worldSizeY;
 
 // Textures
 Texture blocksTexture, playerTexture, cursorTexture;
@@ -92,6 +95,11 @@ int main() {
     worldSettings.chunkSettings = chunkSettings;
 
     chunkManager.initialize(worldSettings);
+
+    worldSizeX = chunkSettings.chunkSize.x * chunkSettings.tileSize.x * worldSettings.worldSize.x;
+    worldSizeY = chunkSettings.chunkSize.y * chunkSettings.tileSize.y * worldSettings.worldSize.y;
+
+    setWorldBoundaries(worldSizeX, worldSizeY);
 
     // Setup Player
     PlayerSettings playerSettings;
@@ -197,6 +205,16 @@ void update(RenderWindow *window) {
             + Vector2i(view.getCenter().x - (screenSizeX / 2)
                        , view.getCenter().y - (screenSizeY / 2)));
     view.setCenter(player.getPosition());
+
+    // Correct view position
+    Vector2f viewCenter = view.getCenter();
+    if (viewCenter.x < (screenSizeX / 2))
+        view.setCenter(Vector2f((screenSizeX / 2), viewCenter.y));
+    else if (viewCenter.x > worldSizeX - (screenSizeX / 2))
+        view.setCenter(Vector2f(worldSizeX - (screenSizeX / 2), viewCenter.y));
+    viewCenter = view.getCenter();
+    if (viewCenter.y > worldSizeY - (screenSizeY / 2))
+        view.setCenter(viewCenter.x, worldSizeY - (screenSizeY / 2));
 }
 
 void simulatePhysics() {
@@ -218,4 +236,41 @@ void loadFiles() {
     blocksTexture.loadFromFile("sprites/blocksTexture.png");
     playerTexture.loadFromFile("sprites/player.png");
     cursorTexture.loadFromFile("sprites/cursor.png");
+}
+
+void setWorldBoundaries(int width, int depth) {
+    float heightAbove = 1000;
+    float boundaryThickness = 16;
+    b2BodyDef boundaryBodyDef;
+    boundaryBodyDef.type = b2_staticBody;
+    boundaryBodyDef.position.Set(0, 0);
+
+    b2Body *boundaryBody = world.CreateBody(&boundaryBodyDef);
+
+    b2PolygonShape edgeShape;
+    edgeShape.SetAsBox((boundaryThickness / (float) (2 * SCALE))
+                       , (float) (heightAbove + depth) / (float) (2 * SCALE)
+                       , b2Vec2(-1.0f * ((boundaryThickness) / (float) (2 * SCALE))
+                                , (float) (depth) / (float) (2 * SCALE))
+                       , 0);
+    b2FixtureDef edgeFixtureDef;
+    edgeFixtureDef.shape = &edgeShape;
+
+    boundaryBody->CreateFixture(&edgeFixtureDef);
+
+    edgeShape.SetAsBox((boundaryThickness / (float) (2 * SCALE))
+                       , (float) (heightAbove + depth) / (float) (2 * SCALE)
+                       , b2Vec2(((boundaryThickness + (2 * (float) (width))) / (float) (2 * SCALE))
+                                , (float) (depth) / (float) (2 * SCALE))
+                       , 0);
+
+    boundaryBody->CreateFixture(&edgeFixtureDef);
+
+    edgeShape.SetAsBox((float) (width) / (float) (2 * SCALE)
+                       , (boundaryThickness / (float) (2 * SCALE))
+                       , b2Vec2((float) (width) / (float) (2 * SCALE)
+                                , ((boundaryThickness + (2 * (float) (depth))) / (float) (2 * SCALE)))
+                       , 0);
+
+    boundaryBody->CreateFixture(&edgeFixtureDef);
 }
