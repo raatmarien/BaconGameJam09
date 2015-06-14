@@ -77,7 +77,7 @@ void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage
         int inChunkY = tileY % settings.chunkSettings.chunkSize.y;
         float tileStrength =  getTileStrength(
             chunks[chunkI]->getTile(Vector2i(inChunkX, inChunkY)));
-        tileStrength *= 1.0f + (((chunkY * settings.chunkSettings.chunkSize.y) + inChunkY) / 100.0f);
+        tileStrength *= 1.0f + (((chunkY * settings.chunkSettings.chunkSize.y) + inChunkY) / 33.0f);
         if (tileStrength < damage) {
             chunks[chunkI]->removeTile(Vector2i(inChunkX, inChunkY));
             return;

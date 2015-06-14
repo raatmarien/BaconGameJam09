@@ -318,7 +318,7 @@ void simulatePhysics() {
 
 void draw(RenderWindow *window) {
     window->setView(view);
-    window->clear(Color(20, 50, 200));
+    window->clear(Color(143, 178, 255));
     chunkManager.draw(window);
     window->draw(store);
     window->draw(dave);
