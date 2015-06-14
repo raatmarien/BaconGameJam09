@@ -187,12 +187,12 @@ int Shop::getPrice(int level) {
     case 3:
         return 25;
     case 4:
-        return 50;
-    case 5:
         return 80;
+    case 5:
+        return 200;
     case 6:
-        return 110;
+        return 500;
     default:
-        return 110 * pow(1.5f, (float) (level - 6)); 
+        return 500 * pow(2.2f, (float) (level) - 6.0f); 
     }
 }
