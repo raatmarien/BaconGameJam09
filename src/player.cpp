@@ -112,6 +112,11 @@ void Player::jump() {
     }
 }
 
+void Player::down() {
+    body->ApplyForce(b2Vec2(0, settings.downForce)
+                     , body->GetWorldCenter(), true);
+}
+
 void Player::addGroundContact() {
     groundContactsAmmount++;
 }
