@@ -54,7 +54,7 @@ public:
     PlayerSettings settings;
     int maxFuel;
     int currentFuel;
-    float currentFuelFloat;
+    float currentFuelFloat, fuelAdd, jetpackStrength;
 private:
     sf::Sprite sprite;
     b2Body *body;

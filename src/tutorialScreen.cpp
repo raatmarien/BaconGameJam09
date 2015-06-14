@@ -61,9 +61,9 @@ void TutorialScreen::setScreenSize(int screenX, int screenY) {
     inReachText.setPosition(padding * 4, screenY / 2 - padding * 2);
 }
 
-void TutorialScreen::startTutorial() {
+void TutorialScreen::startTutorial(bool won) {
     active = true;
-    setScreen(1);
+    setScreen(won ? 6 : 1);
 }
 
 void TutorialScreen::draw(RenderTarget *target) {
@@ -98,6 +98,11 @@ void TutorialScreen::setScreen(int screen) {
         "Press return to continue..";
     std::string tutorialString4 = "That was all, good luck finding my diamond!\n\n"
         "Press return to start digging...";
+    std::string wonString = "Wow, you found my diamond!\n\n"
+        "I can't thank you enough for this, please accept\n"
+        "this money as a token of my appreciation!\n\n"
+        "+ 100.000 gold\n\n"
+        "Press return to continue";
     switch (screen) {
     case 1:
         tutorialText.setString(tutorialString1);
@@ -110,6 +115,9 @@ void TutorialScreen::setScreen(int screen) {
         break;
     case 4:
         tutorialText.setString(tutorialString4);
+        break;
+    case 6:
+        tutorialText.setString(wonString);
         break;
     default:
         active = false;

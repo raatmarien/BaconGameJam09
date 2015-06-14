@@ -26,7 +26,7 @@ public:
     void update();
     void draw(sf::RenderTarget *target);
     void setScreenSize(int screenX, int screenY);
-    void startTutorial();
+    void startTutorial(bool won);
     bool active;
     bool inReach;
 private:

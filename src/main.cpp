@@ -147,7 +147,7 @@ int main() {
     // Set up TutorialScreen
     tutorialScreen.initialize(&moneyFont);
     tutorialScreen.setScreenSize(screenSizeX, screenSizeY);
-    tutorialScreen.startTutorial();
+    tutorialScreen.startTutorial(false);
 
     // Set up dave
     dave.setTexture(daveTexture);
@@ -261,7 +261,11 @@ void handleInput(RenderWindow *window) {
 
     if (tutorialScreen.inReach
         && Keyboard::isKeyPressed(Keyboard::E)) {
-        tutorialScreen.startTutorial();
+        tutorialScreen.startTutorial(playerInventory.getDiamond());
+        if (playerInventory.getDiamond()) {
+            playerInventory.changeMoney(100000);
+            playerInventory.setDiamond(false);
+        }
     }
     if (shop.inReach
         && Keyboard::isKeyPressed(Keyboard::E)) {

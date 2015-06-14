@@ -381,7 +381,7 @@ float ChunkManager::getTileStrength(char tile) {
     case 11:
         return 2.8f;
     case 12:
-        0.2f;
+        return 0.2f;
     }
     return 10.0f;
 }

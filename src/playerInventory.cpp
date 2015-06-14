@@ -104,20 +104,8 @@ void PlayerInventory::levelupMovement() {
 
     float movementStrength = 0.0f;
     switch (movementLevel) {
-    case 1:
-        movementStrength = 15.0f;
-        break;
-    case 2:
-        movementStrength = 20.0f;
-        break;
-    case 3:
-        movementStrength = 30.0f;
-        break;
-    case 4:
-        movementStrength = 45.0f;
-        break;
     default:
-        movementStrength = 45.0f + (movementLevel - 4) * 15.0f;
+        movementStrength = 15.0f + (movementLevel - 1) * 1.0f;
         break;
     }
     player->settings.moveForce = movementStrength;
@@ -130,7 +118,9 @@ int PlayerInventory::getJetpackLevel() {
 void PlayerInventory::levelupJetpack() {
     jetpackLevel++;
 
-    int jetpackFuel = jetpackLevel * 30;
+    int jetpackFuel = 20 + jetpackLevel * 20;
+    float fuelAdd = 0.25f;
+    float jetpackStrength = 38.8f + 1.2f * jetpackLevel;
     // switch (jetpackLevel) {
     // case 1:
     //     break;
@@ -138,6 +128,8 @@ void PlayerInventory::levelupJetpack() {
     //     break;
     // }
     player->maxFuel = jetpackFuel;
+    player->fuelAdd = fuelAdd;
+    player->jetpackStrength = jetpackStrength;
 }
 
 void PlayerInventory::setDiamond(bool hasDiamond) {

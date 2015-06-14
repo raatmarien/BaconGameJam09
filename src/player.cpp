@@ -79,7 +79,7 @@ void Player::initialize(PlayerSettings settings) {
     b2FixtureDef fixtureDef;
     fixtureDef.shape = &polygon;
     fixtureDef.density = 1.0f;
-    fixtureDef.friction = 0.1f;
+    fixtureDef.friction = 0.02f;
 
     body->CreateFixture(&fixtureDef);
 
@@ -102,7 +102,7 @@ void Player::update() {
     } else if (velocityX < -0.01f) {
         sprite.setTextureRect(sf::IntRect(0 , 0, settings.size.x, settings.size.y));
     }
-    currentFuelFloat += 0.2f;
+    currentFuelFloat += fuelAdd;
     if (currentFuelFloat > maxFuel) currentFuelFloat = maxFuel;
     currentFuel = (int) currentFuelFloat;
 }
@@ -127,7 +127,7 @@ void Player::jetpack() {
     if (currentFuel > 0) {
         currentFuel--;
         currentFuelFloat -= 1;
-        body->ApplyForce(b2Vec2(0, -40)
+        body->ApplyForce(b2Vec2(0, -jetpackStrength)
                      , body->GetWorldCenter(), true);
     }
 }
