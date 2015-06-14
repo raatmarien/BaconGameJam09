@@ -22,6 +22,8 @@ using namespace sf;
 
 void Player::initialize(PlayerSettings settings) {
     this->settings = settings;
+    // this->settings.maxFuel = 200;
+    this->currentFuel = this->maxFuel;
     groundContactsAmmount = 0;
 
     userData.type = COLLIDABLE_PLAYER;
@@ -100,6 +102,9 @@ void Player::update() {
     } else if (velocityX < -0.01f) {
         sprite.setTextureRect(sf::IntRect(0 , 0, settings.size.x, settings.size.y));
     }
+    currentFuelFloat += 0.2f;
+    if (currentFuelFloat > maxFuel) currentFuelFloat = maxFuel;
+    currentFuel = (int) currentFuelFloat;
 }
 
 void Player::move(bool right) {
@@ -115,6 +120,15 @@ void Player::jump() {
     if (groundContactsAmmount > 0) {
         body->ApplyLinearImpulse(b2Vec2(0, -settings.jumpImpulse)
                                  , body->GetWorldCenter(), true);
+    }
+}
+
+void Player::jetpack() {
+    if (currentFuel > 0) {
+        currentFuel--;
+        currentFuelFloat -= 1;
+        body->ApplyForce(b2Vec2(0, -40)
+                     , body->GetWorldCenter(), true);
     }
 }
 

@@ -48,7 +48,8 @@ int worldSizeX, worldSizeY;
 
 // Textures
 Texture blocksTexture, playerTexture, cursorTexture
-                                       , daveTexture;
+                                       , daveTexture
+                                       , storeTexture;
 
 Font moneyFont;
 
@@ -68,6 +69,8 @@ TutorialScreen tutorialScreen;
 Sprite dave;
 
 Shop shop;
+
+Sprite store;
 
 View view, UIView;
 
@@ -154,6 +157,10 @@ int main() {
     shop.initialize(&moneyFont, &(playerInventory));
     shop.setScreenSize(screenSizeX, screenSizeY);
 
+    store.setTexture(storeTexture);
+    store.setOrigin(0, 160);
+    store.setPosition(dave.getPosition() - Vector2f(500, -48));
+
     // Setup View
     view.setCenter(0, 1080);
     view.setSize(screenSizeX, screenSizeY);
@@ -230,16 +237,14 @@ void handleInput(RenderWindow *window) {
         chunkManager.hitTile(globalMousePosition + Vector2i(8, -8), player.getDamage()
                              , player.getPosition(), player.getHitRadius());
     }
-    if (Mouse::isButtonPressed(Mouse::Right)) {
-        // TODO remove
-        shop.openShop();
-    }
 
     // Keyboard input
     if (Keyboard::isKeyPressed(Keyboard::W)
-        || Keyboard::isKeyPressed(Keyboard::Up)
-        || Keyboard::isKeyPressed(Keyboard::Space)) {
+        || Keyboard::isKeyPressed(Keyboard::Up)) {
         player.jump();
+    }
+    if (Keyboard::isKeyPressed(Keyboard::Space)) {
+        player.jetpack();
     }
     if (Keyboard::isKeyPressed(Keyboard::S)
         || Keyboard::isKeyPressed(Keyboard::Down)) {
@@ -258,6 +263,10 @@ void handleInput(RenderWindow *window) {
         && Keyboard::isKeyPressed(Keyboard::E)) {
         tutorialScreen.startTutorial();
     }
+    if (shop.inReach
+        && Keyboard::isKeyPressed(Keyboard::E)) {
+        shop.openShop();
+    }
 }
 
 void update(RenderWindow *window) {
@@ -266,6 +275,7 @@ void update(RenderWindow *window) {
     customCursor.update(Mouse::getPosition(*window)
             + Vector2i(view.getCenter().x - (screenSizeX / 2)
                        , view.getCenter().y - (screenSizeY / 2)));
+    playerInventory.update();
     view.setCenter(player.getPosition());
 
     // Correct view position
@@ -285,6 +295,15 @@ void update(RenderWindow *window) {
     } else {
         tutorialScreen.inReach = false;
     }
+
+    // Check if shop is in reach
+    if (player.getPosition().x > store.getPosition().x
+        && player.getPosition().x < store.getPosition().x + 240
+        && player.getPosition().y < 0) {
+        shop.inReach = true;
+    } else {
+        shop.inReach = false;
+    }
 }
 
 void simulatePhysics() {
@@ -297,6 +316,7 @@ void draw(RenderWindow *window) {
     window->setView(view);
     window->clear(Color(20, 50, 200));
     chunkManager.draw(window);
+    window->draw(store);
     window->draw(dave);
     window->draw(player);
     window->draw(customCursor);
@@ -313,6 +333,7 @@ void loadFiles() {
     blocksTexture.loadFromFile("sprites/blocksTexture.png");
     playerTexture.loadFromFile("sprites/player.png");
     daveTexture.loadFromFile("sprites/dave.png");
+    storeTexture.loadFromFile("sprites/store.png");
     cursorTexture.loadFromFile("sprites/cursor.png");
     moneyFont.loadFromFile("fonts/Munro.ttf");
 }

@@ -26,8 +26,17 @@ void PlayerInventory::initialize(Player *player, Font *moneyFont) {
 
     diamond = false;
 
+    float padding = 2;
+
     moneyText.setFont(*moneyFont);
     moneyText.setCharacterSize(40);
+    fuelIn.setPosition(padding, padding * 2 + 60);
+    fuelOutline.setPosition(fuelIn.getPosition());
+    fuelIn.setFillColor(Color::Green);
+    fuelOutline.setFillColor(Color(0,0,0,0));
+    fuelOutline.setOutlineColor(Color::White);
+    fuelOutline.setOutlineThickness(2);
+    fuelOutline.setSize(Vector2f(150, 20));
 
     money = 0;
 
@@ -121,14 +130,14 @@ int PlayerInventory::getJetpackLevel() {
 void PlayerInventory::levelupJetpack() {
     jetpackLevel++;
 
-    float jetpackFuel = 300 + jetpackLevel * 200;
+    int jetpackFuel = jetpackLevel * 30;
     // switch (jetpackLevel) {
     // case 1:
     //     break;
     // default:
     //     break;
     // }
-    player->settings.maxFuel = jetpackFuel;
+    player->maxFuel = jetpackFuel;
 }
 
 void PlayerInventory::setDiamond(bool hasDiamond) {
@@ -139,7 +148,13 @@ bool PlayerInventory::getDiamond() {
     return diamond;
 }
 
+void PlayerInventory::update() {
+    fuelIn.setSize(Vector2f(150.0f * (player->currentFuelFloat / (float) (player->maxFuel)), 20)); 
+}
+
 void PlayerInventory::draw(RenderTarget &target, RenderStates states) const {
     states.transform *= getTransform();
     target.draw(moneyText, states);
+    target.draw(fuelIn, states);
+    target.draw(fuelOutline, states);
 }

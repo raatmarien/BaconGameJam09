@@ -79,8 +79,8 @@ void TutorialScreen::setScreen(int screen) {
     currentScreen = screen;
     std::string tutorialString1 = "Controls:\n"
         "\t- To move: use wasd or the arrow keys\n"
-        "\t- To jump: use space\n"
-        "\t- To mine: left click on tiles\n\n"
+        "\t- To use your jetpack: press space\n"
+        "\t- To mine blocks: left click on tiles\n\n"
         "Press return to continue...";
     std::string tutorialString2 = "Hey, I'm Dave.\n\n"
         "I lost my precious diamond way down years ago,\n"

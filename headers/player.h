@@ -30,8 +30,6 @@ struct PlayerSettings {
     float downForce;
     float hitRadius;
     float standardDamage;
-    int maxFuel;
-    int currentFuel;
     sf::Texture *texture;
     sf::RectangleShape *shape;
     int scale;
@@ -44,6 +42,7 @@ public:
     void update();
     void move(bool right);
     void jump();
+    void jetpack();
     void down();
 
     void addGroundContact();
@@ -53,6 +52,9 @@ public:
     float getDamage();
 
     PlayerSettings settings;
+    int maxFuel;
+    int currentFuel;
+    float currentFuelFloat;
 private:
     sf::Sprite sprite;
     b2Body *body;

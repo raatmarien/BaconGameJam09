@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class PlayerInventory : public sf::Drawable, public sf::Transformable {
 public:
-void initialize(Player *player, sf::Font *moneyFont);
+    void initialize(Player *player, sf::Font *moneyFont);
+    void update();
     void changeMoney(int change);
     int getMoney();
     int getPickaxeLevel();
@@ -47,6 +48,7 @@ private:
 
     sf::Font *font;
     sf::Text moneyText;
+    sf::RectangleShape fuelIn, fuelOutline;
 
     virtual void draw(sf::RenderTarget &target, sf::RenderStates states) const;
 };
