@@ -94,6 +94,12 @@ void Player::update() {
     b2Vec2 newPosition = body->GetPosition();
     setPosition(newPosition.x * settings.scale
                 , newPosition.y * settings.scale);
+    float velocityX = body->GetLinearVelocity().x;
+    if (velocityX > 0.01f) {
+        sprite.setTextureRect(sf::IntRect(settings.size.x, 0, -settings.size.x, settings.size.y));
+    } else if (velocityX < -0.01f) {
+        sprite.setTextureRect(sf::IntRect(0 , 0, settings.size.x, settings.size.y));
+    }
 }
 
 void Player::move(bool right) {

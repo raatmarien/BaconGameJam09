@@ -179,10 +179,10 @@ void Chunk::updateVertexArray() {
                          , (*(this->tiles + i) / tilesPerWidthTex)
                          * tileTexSize.y);
 
-            tileQuads[baseIndex].texCoords = texCorner;
-            tileQuads[baseIndex+1].texCoords = texCorner + Vector2f(tileTexSize.x, 0);
-            tileQuads[baseIndex+2].texCoords = texCorner + Vector2f(tileTexSize.x, tileTexSize.y);
-            tileQuads[baseIndex+3].texCoords = texCorner + Vector2f(0, tileTexSize.y);
+            tileQuads[baseIndex].texCoords = texCorner + Vector2f(0.1f, 0.1f);
+            tileQuads[baseIndex+1].texCoords = texCorner + Vector2f(tileTexSize.x, 0) + Vector2f(-0.1f, 0.1f);
+            tileQuads[baseIndex+2].texCoords = texCorner + Vector2f(tileTexSize.x, tileTexSize.y) + Vector2f(-0.1f, -0.1f);
+            tileQuads[baseIndex+3].texCoords = texCorner + Vector2f(0, tileTexSize.y) + Vector2f(0.1f, -0.1f);
 
             indexInVertexArray += 4;
         }

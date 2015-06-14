@@ -30,6 +30,8 @@ struct PlayerSettings {
     float downForce;
     float hitRadius;
     float standardDamage;
+    int maxFuel;
+    int currentFuel;
     sf::Texture *texture;
     sf::RectangleShape *shape;
     int scale;
@@ -49,8 +51,9 @@ public:
 
     float getHitRadius();
     float getDamage();
-private:
+
     PlayerSettings settings;
+private:
     sf::Sprite sprite;
     b2Body *body;
     UserData userData;

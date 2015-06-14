@@ -57,6 +57,8 @@ void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage
                 int chunkI = chunkY * settings.worldSize.x + chunkX;    
                 int inChunkX = tileX % settings.chunkSettings.chunkSize.x;
                 int inChunkY = tileY % settings.chunkSettings.chunkSize.y;
+                char tile = chunks[chunkI]->getTile(Vector2i(inChunkX, inChunkY));
+                settings.inventory->changeMoney(getTileMoney(tile));
                 chunks[chunkI]->removeTile(Vector2i(inChunkX, inChunkY));
             }
             return;
@@ -75,11 +77,17 @@ void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage
         int inChunkY = tileY % settings.chunkSettings.chunkSize.y;
         float tileStrength =  getTileStrength(
             chunks[chunkI]->getTile(Vector2i(inChunkX, inChunkY)));
+        tileStrength *= 1.0f + (((chunkY * settings.chunkSettings.chunkSize.y) + inChunkY) / 100.0f);
         if (tileStrength < damage) {
             chunks[chunkI]->removeTile(Vector2i(inChunkX, inChunkY));
             return;
         }
 
+        if (chunks[chunkI]->getTile(Vector2i(inChunkX, inChunkY)) == 2
+            || (chunkY == (settings.worldSize.y - 1)
+                && (inChunkY == (settings.chunkSettings.chunkSize.y - 1)))) {
+            return;
+        }
         TileDamage *tileDamage = new TileDamage;
         tileDamage->totalTileX = tileX;
         tileDamage->totalTileY = tileY;
@@ -90,7 +98,6 @@ void ChunkManager::hitTile(Vector2i globalPixelPosition, float damage
         tileDamage->shape->setPosition(tileX * settings.chunkSettings.tileSize.x
                                        , tileY * settings.chunkSettings.tileSize.y);
         tileDamage->shape->setFillColor(settings.chunkSettings.backgroundColor);
-
         tileDamages.push_back(tileDamage);
     }
 }
@@ -356,23 +363,58 @@ float ChunkManager::getTileStrength(char tile) {
     case 2:
         return 10000000000.0f;
     case 3:
-        return 2.0f;
+        return 1.2f;
     case 4:
-        return 3.0f;
+        return 1.4f;
     case 5:
-        return 4.5f;
+        return 1.6f;
     case 6:
-        return 6.0f;
+        return 1.8f;
     case 7:
-        return 7.5f;
+        return 2.0f;
     case 8:
-        return 9.0f;
+        return 2.2f;
     case 9:
-        return 11.0f;
+        return 2.4f;
     case 10:
-        return 13.5f;
+        return 2.6f;
     case 11:
-        return 16.0f;
+        return 2.8f;
+    case 12:
+        0.2f;
     }
     return 10.0f;
+}
+
+int ChunkManager::getTileMoney(char tile) {
+    switch (tile) {
+    case 0:
+        return 0;
+    case 1:
+        return 0;
+    case 2:
+        return 0;
+    case 3:
+        return 2;
+    case 4:
+        return 5;
+    case 5:
+        return 15;
+    case 6:
+        return 40;
+    case 7:
+        return 100;
+    case 8:
+        return 250;
+    case 9:
+        return 500;
+    case 10:
+        return 1000;
+    case 11:
+        return 2500;
+    case 12:
+        settings.inventory->setDiamond(true);
+        return 0;
+    }
+    return 0;
 }

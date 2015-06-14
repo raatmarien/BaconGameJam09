@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <chunk.h>
+#include <playerInventory.h>
 #include <SFML/Graphics.hpp>
 #include <vector>
 
@@ -25,6 +26,7 @@ struct WorldSettings {
     sf::Vector2i worldSize; // In chunks
     /* int skySize; // Ammount of tiles from top to be left unnocupied */
     sf::Texture *chunkTexture;
+    PlayerInventory *inventory;
     ChunkSettings chunkSettings;
 };
 
@@ -74,4 +76,6 @@ private:
     void addDiamond();
 
     float getTileStrength(char tile);
+
+    int getTileMoney(char tile);
 };

@@ -7,7 +7,10 @@ OBJ = main.o            \
       chunkManager.o    \
       player.o          \
       contactListener.o \
-      customCursor.o    
+      customCursor.o    \
+      playerInventory.o \
+      tutorialScreen.o  \
+      shop.o
 HEADERS = $(wildcard headers/*.h)
 EXEC = bgj09
 

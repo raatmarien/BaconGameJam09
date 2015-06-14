@@ -24,6 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <player.h>
 #include <contactListener.h>
 #include <customCursor.h>
+#include <playerInventory.h>
+#include <tutorialScreen.h>
+#include <shop.h>
 #include <stdlib.h>
 
 #define SCALE 48
@@ -44,7 +47,10 @@ int screenSizeX = 1920, screenSizeY = 1080;
 int worldSizeX, worldSizeY;
 
 // Textures
-Texture blocksTexture, playerTexture, cursorTexture;
+Texture blocksTexture, playerTexture, cursorTexture
+                                       , daveTexture;
+
+Font moneyFont;
 
 // Game objects
 ChunkManager chunkManager;
@@ -55,7 +61,15 @@ ContactListener contactListener;
 
 CustomCursor customCursor;
 
-View view;
+PlayerInventory playerInventory;
+
+TutorialScreen tutorialScreen;
+
+Sprite dave;
+
+Shop shop;
+
+View view, UIView;
 
 // Box2D settings
 b2Vec2 gravity(0.0f, 20.0f);
@@ -79,7 +93,6 @@ int main() {
     // Setup world
     world.SetContactListener(&contactListener);
 
-    // Setup ChunkManager
     ChunkSettings chunkSettings;
     chunkSettings.chunkSize = Vector2i(64, 64);
     chunkSettings.tileSize = Vector2i(16, 16);
@@ -94,7 +107,6 @@ int main() {
     worldSettings.chunkTexture = &blocksTexture;
     worldSettings.chunkSettings = chunkSettings;
 
-    chunkManager.initialize(worldSettings);
 
     worldSizeX = chunkSettings.chunkSize.x * chunkSettings.tileSize.x * worldSettings.worldSize.x;
     worldSizeY = chunkSettings.chunkSize.y * chunkSettings.tileSize.y * worldSettings.worldSize.y;
@@ -106,7 +118,7 @@ int main() {
     playerSettings.size = Vector2f(28, 48);
     playerSettings.startPosition = Vector2f((chunkSettings.chunkSize.x * chunkSettings.tileSize.x
                                              * worldSettings.worldSize.x) / 2
-                                            , -100 - (playerSettings.size.y / 2));
+                                            ,  - (playerSettings.size.y / 2) + 16);
     playerSettings.moveForce = 15.0f;
     playerSettings.jumpImpulse = 5.0f;
     playerSettings.downForce = 20.0f;
@@ -118,12 +130,35 @@ int main() {
 
     player.initialize(playerSettings);
 
+    // Setup PlayerInventory
+    playerInventory.initialize(&player, &moneyFont);
+    playerInventory.setPosition(20, 20);
+
+    // Setup ChunkManager
+    worldSettings.inventory = &playerInventory;
+    chunkManager.initialize(worldSettings);
+
     // Setup CustomCursor
     customCursor.initialize(&cursorTexture, chunkSettings.tileSize, &player);
+
+    // Set up TutorialScreen
+    tutorialScreen.initialize(&moneyFont);
+    tutorialScreen.setScreenSize(screenSizeX, screenSizeY);
+    tutorialScreen.startTutorial();
+
+    // Set up dave
+    dave.setTexture(daveTexture);
+    dave.setPosition(playerSettings.startPosition - Vector2f(48, 24));
+
+    // Set up shop
+    shop.initialize(&moneyFont, &(playerInventory));
+    shop.setScreenSize(screenSizeX, screenSizeY);
 
     // Setup View
     view.setCenter(0, 1080);
     view.setSize(screenSizeX, screenSizeY);
+    UIView.setSize(screenSizeX, screenSizeY);
+    UIView.setCenter(screenSizeX / 2, screenSizeY / 2);
 
     int framesForFps = -1;
     fpsTimer.restart();
@@ -135,11 +170,28 @@ int main() {
         }
         framesForFps++;
 
-        handleEvents(&window);
-        handleInput(&window);
-        update(&window);
-        simulatePhysics();
-        draw(&window);
+        if (tutorialScreen.active) {
+            handleEvents(&window);
+            update(&window);
+            tutorialScreen.update();
+            draw(&window);
+            window.setView(UIView);
+            window.display();
+        } else if (shop.active) {
+            handleEvents(&window);
+            update(&window);
+            shop.update();
+            draw(&window);
+            window.setView(UIView);
+            window.display();
+        } else {
+            handleEvents(&window);
+            handleInput(&window);
+            update(&window);
+            simulatePhysics();
+            draw(&window);
+            window.display();
+        }
     }
 }
 
@@ -155,6 +207,10 @@ void handleEvents(RenderWindow *window) {
             std::cout << "New screen size: " << screenSizeX
                       << " by " << screenSizeY << "\n";
             view.setSize(screenSizeX, screenSizeY);
+            UIView.setSize(screenSizeX, screenSizeY);
+            UIView.setCenter(screenSizeX / 2, screenSizeY / 2);
+            tutorialScreen.setScreenSize(screenSizeX, screenSizeY);
+            shop.setScreenSize(screenSizeX, screenSizeY);
         }
     }
 }
@@ -175,7 +231,8 @@ void handleInput(RenderWindow *window) {
                              , player.getPosition(), player.getHitRadius());
     }
     if (Mouse::isButtonPressed(Mouse::Right)) {
-
+        // TODO remove
+        shop.openShop();
     }
 
     // Keyboard input
@@ -196,6 +253,11 @@ void handleInput(RenderWindow *window) {
         || Keyboard::isKeyPressed(Keyboard::Right)) {
         player.move(true);
     }
+
+    if (tutorialScreen.inReach
+        && Keyboard::isKeyPressed(Keyboard::E)) {
+        tutorialScreen.startTutorial();
+    }
 }
 
 void update(RenderWindow *window) {
@@ -215,6 +277,14 @@ void update(RenderWindow *window) {
     viewCenter = view.getCenter();
     if (viewCenter.y > worldSizeY - (screenSizeY / 2))
         view.setCenter(viewCenter.x, worldSizeY - (screenSizeY / 2));
+
+    // Check if in tutorials reach
+    Vector2f dif = player.getPosition() - dave.getPosition();
+    if (dif.x * dif.x + dif.y * dif.y < 100 * 100) {
+        tutorialScreen.inReach = true;
+    } else {
+        tutorialScreen.inReach = false;
+    }
 }
 
 void simulatePhysics() {
@@ -227,15 +297,24 @@ void draw(RenderWindow *window) {
     window->setView(view);
     window->clear(Color(20, 50, 200));
     chunkManager.draw(window);
+    window->draw(dave);
     window->draw(player);
     window->draw(customCursor);
-    window->display();
+    window->setView(UIView);
+    window->draw(playerInventory);
+    if (tutorialScreen.inReach || tutorialScreen.active) {
+        tutorialScreen.draw(window);
+    } else if (shop.inReach || shop.active) {
+        shop.draw(window);
+    }
 }
 
 void loadFiles() {
     blocksTexture.loadFromFile("sprites/blocksTexture.png");
     playerTexture.loadFromFile("sprites/player.png");
+    daveTexture.loadFromFile("sprites/dave.png");
     cursorTexture.loadFromFile("sprites/cursor.png");
+    moneyFont.loadFromFile("fonts/Munro.ttf");
 }
 
 void setWorldBoundaries(int width, int depth) {
