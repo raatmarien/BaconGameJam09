@@ -32,6 +32,10 @@ void CustomCursor::initialize(Texture *texture, Vector2i tileSize
         tilePointers[i] = new Sprite;
         tilePointers[i]->setTexture(*texture);
     }
+    tilePointers[0]->setTextureRect(IntRect(0, 0, 16, 16));
+    tilePointers[1]->setTextureRect(IntRect(16, 0, 16, 16));
+    tilePointers[2]->setTextureRect(IntRect(16, 16, 16, 16));
+    tilePointers[3]->setTextureRect(IntRect(0, 16, 16, 16));
 }
 
 void CustomCursor::update(Vector2i mousePosition) {
@@ -49,9 +53,9 @@ void CustomCursor::update(Vector2i mousePosition) {
         if (distance(tilePointers[i]->getPosition() + Vector2f(tileSize.x / 2
                                                               , tileSize.y / 2)
                      , player->getPosition()) < player->getHitRadius()) {
-            tilePointers[i]->setColor(Color::Green);
+            tilePointers[i]->setColor(Color(0, 150, 0, 255));
         } else {
-            tilePointers[i]->setColor(Color::Red);
+            tilePointers[i]->setColor(Color(150, 0, 0, 255));
         }
     }
 }
